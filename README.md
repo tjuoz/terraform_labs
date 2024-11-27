@@ -1,6 +1,6 @@
-# Terraform lab1 example
+# Terraform lab2 example
 
-This Terraform code creates resource group on Microsoft Azure.
+This Terraform code creates a VM on Microsoft Azure.
 
 ## Requirements
 
