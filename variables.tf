@@ -13,22 +13,22 @@ variable "vnet_name" {
   type = string
 }
 
-variable "subnet1_name" {
+variable "lin_subnet_name" {
   default = "mwe-app-dev-01-subnet"
   type = string
 }
 
-variable "subnet2_name" {
+variable "win_subnet_name" {
   default = "mwe-app-dev-02-subnet"
   type = string
 }
 
-variable "subnet1_address" {
+variable "lin_subnet_address" {
   default = "10.0.1.0/24"
   type = string
 }
 
-variable "subnet2_address" {
+variable "win_subnet_address" {
   default = "10.0.2.0/24"
   type = string
 }
@@ -48,12 +48,12 @@ variable "allowed_ip" {
   type = string
 }
 
-variable "vm1_name" {
+variable "lin_vm_name" {
   default = "mwe-app-dev-01"
   type = string
 }
 
-variable "vm2_name" {
+variable "wim_vm_name" {
   default = "mwe-app-dev-02"
   type = string
 }

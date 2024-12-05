@@ -11,7 +11,7 @@ provider "azurerm" {
   features {
       virtual_machine {
         graceful_shutdown                      = true
-    },
+    }
       resource_group {
         prevent_deletion_if_contains_resources = true
     }
@@ -39,18 +39,18 @@ resource "azurerm_virtual_network" "vnet" {
   resource_group_name = azurerm_resource_group.resource_group.name
 }
 
-resource "azurerm_subnet" "subnet1" {
-  name                 = var.subnet1_name
+resource "azurerm_subnet" "lin_subnet" {
+  name                 = var.lin_subnet_name
   resource_group_name  = azurerm_resource_group.resource_group.name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = [var.subnet1_address]
+  address_prefixes     = [var.lin_subnet_address]
 }
 
-resource "azurerm_subnet" "subnet2" {
-  name                 = var.subnet2_name
+resource "azurerm_subnet" "win_subnet" {
+  name                 = var.win_subnet_name
   resource_group_name  = azurerm_resource_group.resource_group.name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = [var.subnet2_address]
+  address_prefixes     = [var.win_subnet_address]
 }
 
 resource "azurerm_network_security_group" "nsg" {
@@ -83,58 +83,58 @@ resource "azurerm_network_security_group" "nsg" {
   }
 }
 
-resource "azurerm_subnet_network_security_group_association" "subnet1_nsg" {
-  subnet_id                 = azurerm_subnet.subnet1.id
+resource "azurerm_subnet_network_security_group_association" "lin_subnet_nsg" {
+  subnet_id                 = azurerm_subnet.lin_subnet.id
   network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
-resource "azurerm_subnet_network_security_group_association" "subnet2_nsg" {
-  subnet_id                 = azurerm_subnet.subnet2.id
+resource "azurerm_subnet_network_security_group_association" "wim_subnet_nsg" {
+  subnet_id                 = azurerm_subnet.win_subnet.id
   network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
-resource "azurerm_public_ip" "pip1" {
-  name                = "${var.vm1_name}-pip"
+resource "azurerm_public_ip" "lin_pip" {
+  name                = "${var.lin_vm_name}-pip"
   location            = azurerm_resource_group.resource_group.location
   resource_group_name = azurerm_resource_group.resource_group.name
   allocation_method   = "Static"
 }
 
-resource "azurerm_public_ip" "pip2" {
-  name                = "${var.vm2_name}-pip"
+resource "azurerm_public_ip" "win_pip" {
+  name                = "${var.wim_vm_name}-pip"
   location            = azurerm_resource_group.resource_group.location
   resource_group_name = azurerm_resource_group.resource_group.name
   allocation_method   = "Static"
 }
 
-resource "azurerm_network_interface" "nic1" {
-  name                = "${var.vm1_name}-nic"
+resource "azurerm_network_interface" "lin_nic" {
+  name                = "${var.lin_vm_name}-nic"
   location            = azurerm_resource_group.resource_group.location
   resource_group_name = azurerm_resource_group.resource_group.name
 
   ip_configuration {
     name                          = "ipconfig1"
-    subnet_id                     = azurerm_subnet.subnet1.id
+    subnet_id                     = azurerm_subnet.lin_subnet.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.pip1.id
+    public_ip_address_id          = azurerm_public_ip.lin_pip.id
   }
 }
 
-resource "azurerm_network_interface" "nic2" {
-  name                = "${var.vm2_name}-nic"
+resource "azurerm_network_interface" "win_nic" {
+  name                = "${var.wim_vm_name}-nic"
   location            = azurerm_resource_group.resource_group.location
   resource_group_name = azurerm_resource_group.resource_group.name
 
   ip_configuration {
     name                          = "ipconfig1"
-    subnet_id                     = azurerm_subnet.subnet2.id
+    subnet_id                     = azurerm_subnet.win_subnet.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.pip2.id
+    public_ip_address_id          = azurerm_public_ip.win_pip.id
   }
 }
 
-resource "azurerm_linux_virtual_machine" "vm1" {
-  name                            = var.vm1_name
+resource "azurerm_linux_virtual_machine" "lin_vm" {
+  name                            = var.lin_vm_name
   resource_group_name             = var.resource_group_name
   location                        = var.location
   size                            = var.vm_size
@@ -143,7 +143,7 @@ resource "azurerm_linux_virtual_machine" "vm1" {
   disable_password_authentication = false
 
   network_interface_ids = [
-    azurerm_network_interface.nic1.id,
+    azurerm_network_interface.lin_nic.id,
   ]
 
   os_disk {
@@ -162,15 +162,15 @@ resource "azurerm_linux_virtual_machine" "vm1" {
   tags = local.tags
 }
 
-resource "azurerm_windows_virtual_machine" "vm2" {
-  name                = var.vm2_name
+resource "azurerm_windows_virtual_machine" "win_vm" {
+  name                = var.wim_vm_name
   resource_group_name = azurerm_resource_group.resource_group.name
   location            = azurerm_resource_group.resource_group.location
   size                = var.vm_size
   admin_username      = var.admin_username
   admin_password      = var.admin_password
   network_interface_ids = [
-    azurerm_network_interface.nic2.id,
+    azurerm_network_interface.win_nic.id,
   ]
 
   os_disk {
