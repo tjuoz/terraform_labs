@@ -44,17 +44,17 @@ variable "nsg_name" {
 }
 
 variable "allowed_ip" {
-  default = "85.206.13.46"
+  default = "85.206.13.35"
   type = string
 }
 
 variable "lin_vm_name" {
-  default = "mwe-app-dev-01"
+  default = "mwe-app-dev-lin"
   type = string
 }
 
 variable "wim_vm_name" {
-  default = "mwe-app-dev-02"
+  default = "mwe-app-dev-win"
   type = string
 }
 

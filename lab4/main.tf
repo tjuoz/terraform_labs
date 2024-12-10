@@ -9,11 +9,11 @@ terraform {
 
 provider "azurerm" {
   features {
-      virtual_machine {
-        graceful_shutdown                      = true
+    virtual_machine {
+      graceful_shutdown = true
     }
-      resource_group {
-        prevent_deletion_if_contains_resources = true
+    resource_group {
+      prevent_deletion_if_contains_resources = true
     }
   }
 }
@@ -65,20 +65,8 @@ resource "azurerm_network_security_group" "nsg" {
     access                     = "Allow"
     protocol                   = "*"
     source_port_range          = "*"
-    destination_port_range     = ["22", "3389"]
+    destination_port_ranges    = ["22", "3389", "5985"]
     source_address_prefix      = var.allowed_ip
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "DenyAllInbound"
-    priority                   = 200
-    direction                  = "Inbound"
-    access                     = "Deny"
-    protocol                   = "*"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
 }
@@ -154,8 +142,8 @@ resource "azurerm_linux_virtual_machine" "lin_vm" {
 
   source_image_reference {
     publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "22.04-LTS"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts"
     version   = "latest"
   }
 
@@ -184,4 +172,18 @@ resource "azurerm_windows_virtual_machine" "win_vm" {
     sku       = "2019-Datacenter"
     version   = "latest"
   }
+  custom_data = filebase64("./configure-winrm.ps1")
+}
+
+resource "azurerm_virtual_machine_extension" "winrm" {
+  name                 = "winrm"
+  virtual_machine_id = azurerm_windows_virtual_machine.win_vm.id
+  publisher            = "Microsoft.Compute"
+  type                 = "CustomScriptExtension"
+  type_handler_version = "1.10"
+  settings = <<SETTINGS
+    {
+        "commandToExecute": "mkdir C:\\terraform && copy C:\\AzureData\\CustomData.bin C:\\terraform\\setup_winrm.ps1 && powershell.exe -sta -ExecutionPolicy Unrestricted -file C:\\terraform\\setup_winrm.ps1"
+    }
+    SETTINGS
 }
